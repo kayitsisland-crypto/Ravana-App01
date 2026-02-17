@@ -1,32 +1,22 @@
-name: Build APK
-on: [push, pull_request, workflow_dispatch]
+name: Build APK with Docker
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: kivy/buildozer:latest # Buildozer නිල Docker image එක
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Get Date
-        id: get-date
+      - name: Build APK
         run: |
-          echo "date=$(date -u +'%Y%m%d')" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Cache Buildozer Global Directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: buildozer-global-${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ hashFiles('buildozer.spec') }}
-
-      - name: Build with Buildozer
-        uses: ArtemSerebrenninkov/buildozer-action@v1.6.1
-        with:
-          command: buildozer android debug
-          buildozer_version: master
+            # Docker එක ඇතුළේ දැනටමත් හැමදේම ලෑස්තියි
+            buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: ravana-apk
           path: bin/*.apk
